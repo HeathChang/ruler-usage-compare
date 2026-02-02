@@ -1,0 +1,20 @@
+default_agents = ["cursor", "codex"]
+
+nested = false
+
+[rules]
+base = ".ruler/base.md"
+
+[[scopes]]
+path = "src"
+rules = [
+  ".ruler/frontend.md",
+  ".ruler/testing.md"
+]
+
+[[scopes]]
+path = "src/**"
+rules = [
+  ".ruler/prompts/code-review.md",
+  ".ruler/prompts/feature-dev.md"
+]
