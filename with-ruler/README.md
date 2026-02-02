@@ -386,7 +386,189 @@ ruler.toml 규칙 검사 결과, 다음 항목들이 누락되었습니다:
 
 **가장 중요한 누락 사항**: 디자인 토큰 상수화, Storybook, 테스트 파일
 
+## 🛡️ 규칙 준수 누락 방지 방법
 
+규칙 준수 누락을 방지하기 위한 체계적인 접근 방법:
+
+### 1. 개발 전 필수 체크리스트
+
+코드 작성 전에 다음을 확인:
+
+#### 기능 개발 시작 전
+- [ ] 관련 `.ruler/*.md` 규칙 파일 모두 읽기
+- [ ] FSD 레이어 구조 판단 (어디에 위치할지)
+- [ ] 타입 정의 먼저 작성 (`entities/` 또는 `shared/`)
+- [ ] 테스트 전략 수립 (어떤 테스트가 필요한지)
+
+#### UI 컴포넌트 작성 전
+- [ ] 디자인 토큰 파일 확인 (`shared/constants/designTokens.ts`)
+- [ ] 하드코딩 값 사용 금지 확인
+- [ ] Storybook 작성 필요 여부 확인 (`.ui.tsx` 파일은 필수)
+- [ ] 접근성 속성 확인 (label, aria-label, role 등)
+
+#### API/상태 관리 작성 전
+- [ ] SWR 사용 여부 확인 (서버 상태는 SWR 필수)
+- [ ] UI 상태 vs 서버 상태 분리 확인
+- [ ] Custom Hook 테스트 필요 여부 확인
+
+### 2. 자동화 도구 활용
+
+#### Pre-commit Hook 설정
+```bash
+# .husky/pre-commit 예시
+npm run type-check
+npm run lint
+npm run test
+```
+
+#### ESLint 규칙 강화
+- 하드코딩된 색상 값 감지 규칙
+- `any` 타입 사용 금지 (이미 설정됨)
+- console.log 사용 금지 규칙
+
+#### TypeScript 설정
+- `strict: true` (이미 설정됨)
+- `noUncheckedIndexedAccess: true` (이미 설정됨)
+
+### 3. 규칙 우선순위 명시
+
+규칙을 중요도별로 분류하여 우선 적용:
+
+**P0 (절대 필수)**
+- TypeScript `any` 금지
+- 하드코딩된 값 금지
+- 디자인 토큰 상수화
+
+**P1 (필수)**
+- Storybook (주요 UI 컴포넌트)
+- Jest 테스트 (순수 함수, Custom Hook)
+- SWR 사용 (서버 상태)
+
+**P2 (권장)**
+- FSD 레이어 구조 완벽 준수
+- 테스트 커버리지 목표 설정
+
+### 4. 템플릿/보일러플레이트 사용
+
+#### 컴포넌트 생성 템플릿
+```typescript
+// shared/ui/Component/Component.ui.tsx 템플릿
+import styled from 'styled-components';
+import { COLORS, SPACING, FONT_SIZES } from '../../constants/designTokens';
+
+// 디자인 토큰 사용 필수
+```
+
+#### Storybook 템플릿
+```typescript
+// Component.ui.stories.tsx (자동 생성)
+// 모든 .ui.tsx 파일에 필수
+```
+
+### 5. 코드 리뷰 체크리스트
+
+PR 생성 시 자동 체크:
+
+#### 필수 체크 항목
+- [ ] `any` 타입 사용 여부
+- [ ] 하드코딩된 값 존재 여부
+- [ ] 디자인 토큰 사용 여부
+- [ ] Storybook 파일 존재 여부 (`.ui.tsx` 파일)
+- [ ] 테스트 파일 존재 여부 (순수 함수, Hook)
+- [ ] SWR 사용 여부 (서버 상태)
+- [ ] FSD 레이어 구조 준수 여부
+- [ ] console.log 제거 여부
+
+### 6. AI 프롬프트 개선
+
+코드 생성 시 AI에게 명시적으로 요청:
+
+```
+다음 규칙을 반드시 준수하여 구현:
+1. 디자인 토큰은 shared/constants/designTokens.ts에서 import
+2. .ui.tsx 파일은 반드시 .stories.tsx 파일 생성
+3. 순수 함수는 validation.test.ts 테스트 파일 생성
+4. 서버 상태는 SWR 사용
+5. 하드코딩된 값 절대 금지
+```
+
+### 7. 단계별 검증 프로세스
+
+#### Step 1: 계획 단계
+- FSD 레이어 위치 결정
+- 필요한 파일 목록 작성
+- 테스트 전략 수립
+
+#### Step 2: 구현 단계
+- 타입 정의 먼저 작성
+- 디자인 토큰 확인 후 스타일 작성
+- 컴포넌트와 테스트 동시 작성
+
+#### Step 3: 검증 단계
+- 규칙 체크리스트 확인
+- 자동화 도구 실행 (lint, type-check)
+- Storybook 확인
+
+#### Step 4: 커밋 전
+- console.log 제거 확인
+- 하드코딩 값 확인
+- 테스트 통과 확인
+
+### 8. 규칙 문서화 강화
+
+각 규칙 파일에 예시 추가:
+- `.ruler/frontend.md`에 디자인 토큰 사용 예시
+- `.ruler/testing.md`에 테스트 작성 예시
+- `.ruler/fsd.md`에 레이어 구조 예시
+
+### 9. 정기적인 규칙 검토
+
+- 주간 규칙 준수 현황 점검
+- 누락 사항 패턴 분석
+- 규칙 개선 사항 반영
+
+### 10. 개발자 온보딩
+
+신규 개발자에게:
+- ruler.toml 규칙 전체 읽기 필수
+- 체크리스트 제공
+- 예시 코드 리뷰
+
+---
+
+## 📋 빠른 참조 체크리스트
+
+### 컴포넌트 작성 시
+```
+[ ] 디자인 토큰 사용 (하드코딩 금지)
+[ ] .ui.tsx → .stories.tsx 필수
+[ ] 접근성 속성 포함
+[ ] 타입 안전성 확인 (any 금지)
+```
+
+### 함수 작성 시
+```
+[ ] 순수 함수 → .test.ts 필수
+[ ] Custom Hook → .test.ts 권장
+[ ] Early Return 사용
+[ ] 동사로 시작하는 함수명
+```
+
+### API/상태 관리 시
+```
+[ ] 서버 상태 → SWR 사용
+[ ] UI 상태와 분리
+[ ] 에러 처리 포함
+```
+
+### 커밋 전
+```
+[ ] console.log 제거
+[ ] 하드코딩 값 확인
+[ ] 타입 체크 통과
+[ ] 린트 통과
+[ ] 테스트 통과
+```
 
 ## 사용된 prompt
 ```

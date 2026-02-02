@@ -15,6 +15,7 @@ rules = [
 [[scopes]]
 path = "src/**"
 rules = [
-  ".ruler/prompts/code-review.md",
-  ".ruler/prompts/feature-dev.md"
+  ".ruler/prompts/pre-flight.md",
+  ".ruler/prompts/feature-dev.md",
+  ".ruler/prompts/code-review.md"
 ]
