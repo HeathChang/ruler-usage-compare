@@ -9,7 +9,9 @@ base = ".ruler/base.md"
 path = "src"
 rules = [
   ".ruler/frontend.md",
-  ".ruler/testing.md"
+  ".ruler/testing.md",
+  ".ruler/fsd.md",
+  
 ]
 
 [[scopes]]
