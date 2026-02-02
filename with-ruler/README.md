@@ -264,6 +264,130 @@ VITE_API_URL=https://api.example.com
 이 프로젝트는 private 프로젝트입니다.
 
 
+
+## ⚠️ 규칙 준수 누락 사항
+
+ruler.toml 규칙 검사 결과, 다음 항목들이 누락되었습니다:
+
+### 1. 디자인 토큰 상수화 (강제 규칙 위반)
+
+**규칙**: `.ruler/frontend.md` - "디자인 토큰(색상/간격/폰트)은 상수화한다"
+
+**현재 상태**:
+- `Input.ui.tsx`, `Button.ui.tsx`, `LoginForm.ui.tsx`에서 색상 값이 하드코딩됨
+- 예: `#e74c3c`, `#3498db`, `#ddd`, `#333`, `#f5f5f5` 등
+
+**빠진 것**: `src/shared/constants/designTokens.ts` 같은 디자인 토큰 파일
+
+**이유**: 
+- 규칙을 인지했지만 구현 단계에서 적용하지 않음
+- 빠른 구현을 우선시함
+
+---
+
+### 2. Storybook 파일 (필수)
+
+**규칙**: 
+- `.ruler/frontend.md` - "주요 UI 컴포넌트: Storybook 필수"
+- `.ruler/testing.md` - "주요 UI 컴포넌트: Storybook 필수"
+
+**현재 상태**:
+- `Input.ui.tsx`, `Button.ui.tsx`, `LoginForm.ui.tsx`에 Storybook 파일 없음
+
+**빠진 것**:
+- `Input.ui.stories.tsx`
+- `Button.ui.stories.tsx`
+- `LoginForm.ui.stories.tsx`
+
+**이유**:
+- Storybook 설정과 의존성 추가가 필요해 보류
+- "주요 UI 컴포넌트" 범위를 명확히 판단하지 않음
+
+---
+
+### 3. Jest 테스트 파일 (필수/권장)
+
+**규칙**: `.ruler/testing.md`
+- "순수 함수: jest 기반 unit test 필수"
+- "Custom Hook: jest 통합 테스트 권장"
+
+**현재 상태**:
+- `validation.ts`의 순수 함수들에 테스트 없음
+- `useLogin.ts` 훅에 테스트 없음
+
+**빠진 것**:
+- `validation.test.ts` 또는 `validation.spec.ts`
+- `useLogin.test.ts` 또는 `useLogin.spec.ts`
+
+**이유**:
+- 테스트 설정(jest, testing-library)이 필요해 보류
+- 기능 구현을 우선시함
+
+---
+
+### 4. SWR 사용 (규칙 위반)
+
+**규칙**: `.ruler/frontend.md` - "서버 상태는 SWR을 사용한다"
+
+**현재 상태**:
+- `useLogin.ts`에서 직접 `fetch` 사용
+- SWR 미사용
+
+**빠진 것**: SWR을 사용한 서버 상태 관리
+
+**이유**:
+- 로그인은 일회성 액션이라 SWR 적용이 덜 명확해 보였음
+- 규칙을 엄격히 적용하지 않음
+
+---
+
+### 5. FSD app 레이어 구조
+
+**규칙**: `.ruler/fsd.md`
+- "app - 애플리케이션 초기화 코드, 전역 Provider, 라우팅 설정"
+
+**현재 상태**:
+- `App.tsx`가 `src/` 루트에 있음
+- FSD 구조상 `src/app/`에 있어야 함
+
+**빠진 것**: `src/app/` 디렉토리 구조
+
+**이유**:
+- 기존 구조를 그대로 사용
+- FSD 레이어 구조를 완전히 적용하지 않음
+
+---
+
+### 6. 하드코딩된 값 (금지 항목)
+
+**규칙**: `.ruler/prompts/code-review.md` - "하드코딩된 값" 절대 허용 안 됨
+
+**현재 상태**:
+- 색상 값 하드코딩
+- 간격 값 하드코딩 (`8px`, `12px`, `20px` 등)
+- 폰트 크기 하드코딩 (`14px`, `16px`, `24px` 등)
+
+**빠진 것**: 상수화된 디자인 토큰
+
+**이유**: 디자인 토큰 상수화와 동일한 이유
+
+---
+
+### 요약
+
+| 항목 | 규칙 중요도 | 현재 상태 | 이유 |
+|------|------------|----------|------|
+| 디자인 토큰 상수화 | 강제 | 미구현 | 빠른 구현 우선 |
+| Storybook | 필수 | 없음 | 설정 필요성으로 보류 |
+| Jest 테스트 | 필수/권장 | 없음 | 설정 필요성으로 보류 |
+| SWR 사용 | 규칙 | 미사용 | 일회성 액션으로 판단 |
+| app 레이어 구조 | FSD 원칙 | 구조 미준수 | 기존 구조 유지 |
+| 하드코딩 값 제거 | 금지 | 존재 | 디자인 토큰 미적용 |
+
+**가장 중요한 누락 사항**: 디자인 토큰 상수화, Storybook, 테스트 파일
+
+
+
 ## 사용된 prompt
 ```
 React + TypeScript로 로그인 페이지를 구현해줘.
